@@ -40,6 +40,6 @@ app.use('/orders', orderRouter)
 
 // Make my server work on port 3000 and listen when user use it
 
-app.listen(port, '192.168.0.103', () => console.log("Server Started"));
+app.listen(port, () => console.log("Server Started"));
 
 
