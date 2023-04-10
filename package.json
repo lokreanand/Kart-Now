@@ -1,0 +1,28 @@
+{
+  "name": "com.marwaeltayeb.souq",
+  "version": "1.0.0",
+  "description": "Laern only",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "author": "Marwa Eltayeb",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "latest",
+    "body-parser": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "jsonwebtoken": "latest",
+    "multer": "latest",
+    "mysql": "latest",
+    "aws-sdk": "latest",
+    "nodemailer": "latest",
+    "save": "latest"
+  },
+  "devDependencies": {
+    
+    "nodemon": "^2.0.2"
+  }
+}
