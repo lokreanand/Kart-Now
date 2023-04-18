@@ -20,6 +20,8 @@ const reviewRouter = require('./api/routes/review')
 const posterRouter = require('./api/routes/posters')
 const addressRouter = require('./api/routes/address')
 const orderRouter = require('./api/routes/orders')
+const orderedProductRouter = require('./api/routes/orderedProduct')
+
 
 const port = 8080
 
@@ -37,6 +39,9 @@ app.use('/review', reviewRouter)
 app.use('/posters', posterRouter)
 app.use('/address', addressRouter)
 app.use('/orders', orderRouter)
+app.use('/orderedProduct', orderedProductRouter)
+
+
 
 // Make my server work on port 3000 and listen when user use it
 

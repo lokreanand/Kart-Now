@@ -14,33 +14,33 @@ router.post("/add", (request, response) => {
     var card_number = request.body.card_number
     const expiration_date = request.body.expiration_date
     const userId = request.body.userId
-    const productId = request.body.productId
-    var order_number;
+    const totalPrice = request.body.totalPrice;
+    var order_number = request.body.ordering_id;
 
     card_number = util2.encrypt(card_number)
 
-    const queryCategory = 'SELECT category FROM product WHERE id = ?'
-    database.query(queryCategory, productId, (error, result) => {
-        if (error) throw error;
+    // const queryCategory = 'SELECT category FROM product WHERE id = ?'
+    // database.query(queryCategory, productId, (error, result) => {
+    //     if (error) throw error;
 
-        result = result[0]["category"]
+    //     result = result[0]["category"]
 
-        if (result == "mobile") {
-            order_number = '55' + util.getRandomInt(100000, 999999)
-        } else if (result == "laptop") {
-            order_number = '66' + util.getRandomInt(100000, 999999)
-        } else if (result == "baby") {
-            order_number = '77' + util.getRandomInt(100000, 999999)
-        } else if (result == "toy") {
-            order_number = '88' + util.getRandomInt(100000, 999999)
-        }
+    //     if (result == "mobile") {
+            //order_number = '55' + util.getRandomInt(100000, 999999)
+        // } else if (result == "laptop") {
+        //     order_number = '66' + util.getRandomInt(100000, 999999)
+        // } else if (result == "baby") {
+        //     order_number = '77' + util.getRandomInt(100000, 999999)
+        // } else if (result == "toy") {
+        //     order_number = '88' + util.getRandomInt(100000, 999999)
+        // }
 
         if (typeof status == 'undefined' && status == null) {
             status = "shipped";
         }
 
-        const query = "INSERT INTO ordering(order_number, order_date ,status,name_on_card, card_number,expiration_date,user_id, product_id) VALUES(?,NOW(),?,?,?,?,?,?)"
-        const args = [order_number, status, name_on_card, card_number, expiration_date, userId, productId]
+        const query = "INSERT INTO ordering(order_number, order_date ,status,name_on_card, card_number,expiration_date,user_id, total_price) VALUES(?,NOW(),?,?,?,?,?,?)"
+        const args = [order_number, status, name_on_card, card_number, expiration_date, userId, totalPrice]
 
         database.query(query, args, (error, result) => {
             if (error) {
@@ -50,49 +50,92 @@ router.post("/add", (request, response) => {
                     throw error;
                 }
             } else {
-                response.status(200).send("You ordered a product")
+                response.status(200).send(order_number+"")
+                console.log(order_number)
             }
         });
 
 
-    })
-});
-
-
-router.get("/", (request, response) => {
-    const productId = request.body.id
-
-    var order_number;
-
-    const queryCategory = 'SELECT category FROM product WHERE id = ?'
-    database.query(queryCategory, productId, (error, result) => {
-        if (error) throw error;
-
-        result = result[0]["category"]
-
-        console.log(result)
-
-        if (result === "mobile") {
-            console.log('hello')
-            order_number = 55 + getRandomInt(100000, 999999)
-        } else if (result == "laptop") {
-            order_number = 66 + getRandomInt(100000, 999999)
-        } else if (result == "baby") {
-            order_number = 77 + getRandomInt(100000, 999999)
-        } else if (result == "toy") {
-            order_number = 88 + getRandomInt(100000, 999999)
-        }
-
-        response.status(200).json({
-            "category": result
-        })
     });
 
-    function getRandomInt(min, max) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min)) + min;
+
+// router.get("/", (request, response) => {
+//     const productId = request.body.id
+
+//     var order_number;
+
+//     const queryCategory = 'SELECT category FROM product WHERE id = ?'
+//     database.query(queryCategory, productId, (error, result) => {
+//         if (error) throw error;
+
+//         result = result[0]["category"]
+
+//         console.log(result)
+
+//         if (result === "mobile") {
+//             console.log('hello')
+//             order_number = 55 + getRandomInt(100000, 999999)
+//         } else if (result == "laptop") {
+//             order_number = 66 + getRandomInt(100000, 999999)
+//         } else if (result == "baby") {
+//             order_number = 77 + getRandomInt(100000, 999999)
+//         } else if (result == "toy") {
+//             order_number = 88 + getRandomInt(100000, 999999)
+//         }
+
+//         response.status(200).json({
+//             "category": result
+//         })
+//     });
+
+
+//     function getRandomInt(min, max) {
+//         min = Math.ceil(min);
+//         max = Math.floor(max);
+//         return Math.floor(Math.random() * (max - min)) + min;
+//     }
+// });
+
+router.get("/", (request, response) => {
+    var orderId = request.query.orderId;
+    var page = request.query.page;
+    var page_size = request.query.page_size;
+
+    console.log(typeof page);
+
+    if (page == null) {
+        page = 0;
     }
+
+    if (page_size == null) {
+        page_size = 25;
+    }
+
+    const args = [
+        orderId,
+        parseInt(page_size),
+        parseInt(page)
+    ];
+
+    const query = `SELECT product.id,
+                 product.product_name,
+                 product.price, 
+                 product.image, 
+                 product.category, 
+                 product.quantity, 
+                 product.supplier
+                 FROM ordered_product JOIN product JOIN ordering 
+                 ON ordered_product.product_id = product.id AND ordered_product.ordering_id = ordering.order_number 
+                 WHERE ordering.order_number = ? 
+                 LIMIT ? OFFSET ?`
+
+    database.query(query, args, (error, result) => {
+        if (error) throw error;
+        response.status(200).json({
+            "carts": result
+        })
+
+    })
 });
 
 
@@ -123,13 +166,12 @@ router.get("/get", (request, response) => {
 
     const query = `SELECT DISTINCT ordering.order_number,
                           DATE_FORMAT(ordering.order_date, '%d/%m/%Y') As order_date, 
-                          ordering.status,product.product_name,
-                          product.price,
-                          product.id,
+                          ordering.status,
                           user.name,
-                          shipping.address
-                          FROM ordering JOIN product JOIN user JOIN shipping 
-                          ON ordering.product_id = product.id AND ordering.user_id = user.id AND ordering.product_id = shipping.product_id
+                          shipping.address,
+                          ordering.total_price
+                          FROM ordering JOIN user JOIN shipping 
+                          ON ordering.user_id = user.id AND ordering.order_number = shipping.ordering_id
                           WHERE ordering.user_id = ? 
                           LIMIT ? OFFSET ?`
 

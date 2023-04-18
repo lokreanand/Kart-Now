@@ -14,10 +14,11 @@ router.post("/add", (request, response) => {
     const phone = request.body.phone
     const userId = request.body.userId
     const productId = request.body.productId
+    const orderNumber = request.body.orderingId
 
-    const query = "INSERT INTO shipping(address, city ,country, zip,phone,user_id, product_id) VALUES(?,?,?,?,?,?,?)"
+    const query = "INSERT INTO shipping(address, city ,country, zip,phone,user_id, product_id, ordering_id) VALUES(?,?,?,?,?,?,?,?)"
 
-    const args = [address, city, country, zip, phone, userId, productId]
+    const args = [address, city, country, zip, phone, userId, productId,orderNumber]
 
     database.query(query, args, (error, result) => {
         if (error) {
